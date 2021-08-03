@@ -13,7 +13,7 @@ npm i @polaritybit/use-form
 You can initialize a new form state by calling the `useForm` hook and passing it an initial state. If no initial state is passed, an empty object will be used:
 
 ```tsx
-import { useForm } from '@gianmarcotoso/use-form'
+import { useForm } from '@polaritybit/use-form'
 
 type Person = {
 	name: string
