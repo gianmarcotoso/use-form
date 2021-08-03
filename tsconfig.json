@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"target": "ES2018",
+		"module": "esnext",
+		"moduleResolution": "node",
+		"lib": ["es2018", "es2017", "es2016", "es2015", "dom"],
+		"strict": true,
+		"declaration": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"outDir": "dist",
+		"forceConsistentCasingInFileNames": true
+	},
+	"exclude": ["tests/**"]
+}
