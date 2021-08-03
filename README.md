@@ -56,7 +56,7 @@ function MyForm({ person }) {
 }
 ```
 
-The setter function can also be called by passing the _key_ you want to update, with its new value as the second parameter:
+The setter function can also be called by passing the _key_ you want to update, with its new value as the second parameter: 
 
 ```tsx
 function handleUpdateName(name: string) {
