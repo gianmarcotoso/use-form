@@ -1,6 +1,6 @@
 {
 	"name": "@polaritybit/use-form",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"private": false,
 	"description": "A hook for forms",
 	"main": "dist/index.js",
