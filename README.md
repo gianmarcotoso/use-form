@@ -5,7 +5,7 @@ A UI agnostic hook for handling local form state.
 ## Installation
 
 ```bash
-npm i @gianmarcotoso/use-form
+npm i @polaritybit/use-form
 ```
 
 ## Basic Usage
