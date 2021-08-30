@@ -13,6 +13,9 @@ function UpdateOnEvent(handleUpdate, event) {
     UpdateOnPathAndValue(handleUpdate, target.name, value);
 }
 function Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace) {
+    if (!eventOrDeltaOrPath) {
+        return;
+    }
     const event = eventOrDeltaOrPath;
     if (event.nativeEvent instanceof Event) {
         UpdateOnEvent(handleUpdate, event);
