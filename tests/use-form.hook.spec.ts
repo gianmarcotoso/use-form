@@ -34,6 +34,16 @@ describe('use-form.hook', () => {
 		expect(result.current[0]).toEqual({})
 	})
 
+	it('does nothing when the setter function is called with null', () => {
+		const { result } = renderHook(() => useForm<TestFormState>())
+
+		act(() => {
+			(result.current[1] as any)(null)
+		})
+
+		expect(result.current[0]).toEqual({})
+	})
+
 	it('updates the state when the setter function is called with a delta object', () => {
 		const { result } = renderHook(() => useForm<TestFormState>({}))
 		const [, setData] = result.current

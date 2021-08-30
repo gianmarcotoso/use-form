@@ -58,6 +58,10 @@ function Update<T>(
 	replaceOrValue?: any,
 	replace?: boolean,
 ) {
+	if (!eventOrDeltaOrPath) {
+		return
+	}
+
 	const event = eventOrDeltaOrPath as ChangeEvent
 	if (event.nativeEvent instanceof Event) {
 		UpdateOnEvent(handleUpdate, event)
