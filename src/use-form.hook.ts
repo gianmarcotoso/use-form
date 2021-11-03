@@ -34,7 +34,7 @@ export type HandleChangeFunction<T> = {
 	(path: Path<T>, value: DeepPartial<PathValue<T, Path<T>>>, replace?: boolean): void
 }
 
-export type Form<T> = [DeepPartial<T>, HandleChangeFunction<T>]
+export type Form<T> = [T, HandleChangeFunction<T>]
 
 function UpdateOnPathAndValue<T>(handleUpdate: HandleUpdateFunction<T>, key: string, value: any, replace?: boolean) {
 	const splittedKey = key.split('.')
@@ -101,13 +101,13 @@ export function useForm<T>(initialValue: DeepPartial<T> = {}, middlewareFn: Midd
 		[data, handleUpdate],
 	)
 
-	return [data, handleChange]
+	return [data as T, handleChange]
 }
 
 export function useNestedForm<T, K extends Path<T>, N extends PathValue<T, K>>(
 	form: Form<T>,
 	key: K,
-): [DeepPartial<N>, HandleChangeFunction<N>] {
+): [N, HandleChangeFunction<N>] {
 	const [data, onChange] = form
 	const currentValue: DeepPartial<N> = useMemo(() => {
 		return path((key as string).split('.'), data) ?? {}
@@ -127,7 +127,7 @@ export function useNestedForm<T, K extends Path<T>, N extends PathValue<T, K>>(
 		[currentValue, handleUpdate],
 	)
 
-	return [currentValue, handleChange]
+	return [currentValue as N, handleChange]
 }
 
 export type HandleAddItemFunction<I> = (item: DeepPartial<I>) => void

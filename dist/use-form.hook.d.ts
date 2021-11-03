@@ -13,9 +13,9 @@ export declare type HandleChangeFunction<T> = {
     (delta: DeepPartial<T>, replace?: boolean): void;
     (path: Path<T>, value: DeepPartial<PathValue<T, Path<T>>>, replace?: boolean): void;
 };
-export declare type Form<T> = [DeepPartial<T>, HandleChangeFunction<T>];
+export declare type Form<T> = [T, HandleChangeFunction<T>];
 export declare function useForm<T>(initialValue?: DeepPartial<T>, middlewareFn?: MiddlewareFunction<T>): Form<T>;
-export declare function useNestedForm<T, K extends Path<T>, N extends PathValue<T, K>>(form: Form<T>, key: K): [DeepPartial<N>, HandleChangeFunction<N>];
+export declare function useNestedForm<T, K extends Path<T>, N extends PathValue<T, K>>(form: Form<T>, key: K): [N, HandleChangeFunction<N>];
 export declare type HandleAddItemFunction<I> = (item: DeepPartial<I>) => void;
 export declare type HandleRemoveItemFunction<I> = (item: I) => void;
 export declare type HandleUpdateItemFunction<I> = (item: I, delta: DeepPartial<I>, replace?: boolean) => void;
