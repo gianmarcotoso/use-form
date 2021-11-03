@@ -34,11 +34,22 @@ describe('use-form.hook', () => {
 		expect(result.current[0]).toEqual({})
 	})
 
-	it('does nothing when the setter function is called with null', () => {
+	it('empties the state to a null value when null is passed to the setter function with the replace flag set to true', () => {
+		const { result } = renderHook(() => useForm<TestFormState>({}))
+		const [, setData] = result.current
+
+		act(() => {
+			setData(null, true)
+		})
+
+		expect(result.current[0]).toEqual(null)
+	})
+
+	it('does nothing when the setter function is called with null and the replace flag is set to false', () => {
 		const { result } = renderHook(() => useForm<TestFormState>())
 
 		act(() => {
-			(result.current[1] as any)(null)
+			;(result.current[1] as any)(null)
 		})
 
 		expect(result.current[0]).toEqual({})

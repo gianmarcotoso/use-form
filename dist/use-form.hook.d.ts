@@ -11,7 +11,7 @@ export declare type HandleUpdateFunction<T> = (delta: DeepPartial<T>, replace?: 
 export declare type HandleChangeFunction<T> = {
     (event: ChangeEvent): void;
     (delta: DeepPartial<T>, replace?: boolean): void;
-    (path: Path<T>, value: DeepPartial<PathValue<T, Path<T>>>, replace?: boolean): void;
+    (path: Path<T> | null, value: DeepPartial<PathValue<T, Path<T>>>, replace?: boolean): void;
 };
 export declare type Form<T> = [T, HandleChangeFunction<T>];
 export declare function useForm<T>(initialValue?: DeepPartial<T>, middlewareFn?: MiddlewareFunction<T>): Form<T>;

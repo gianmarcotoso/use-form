@@ -31,7 +31,7 @@ export type HandleUpdateFunction<T> = (delta: DeepPartial<T>, replace?: boolean)
 export type HandleChangeFunction<T> = {
 	(event: ChangeEvent): void
 	(delta: DeepPartial<T>, replace?: boolean): void
-	(path: Path<T>, value: DeepPartial<PathValue<T, Path<T>>>, replace?: boolean): void
+	(path: Path<T> | null, value: DeepPartial<PathValue<T, Path<T>>>, replace?: boolean): void
 }
 
 export type Form<T> = [T, HandleChangeFunction<T>]
@@ -58,12 +58,8 @@ function Update<T>(
 	replaceOrValue?: any,
 	replace?: boolean,
 ) {
-	if (!eventOrDeltaOrPath) {
-		return
-	}
-
 	const event = eventOrDeltaOrPath as ChangeEvent
-	if (event.nativeEvent instanceof Event) {
+	if (event?.nativeEvent instanceof Event) {
 		UpdateOnEvent(handleUpdate, event)
 
 		return
@@ -79,15 +75,20 @@ function Update<T>(
 }
 
 export function useForm<T>(initialValue: DeepPartial<T> = {}, middlewareFn: MiddlewareFunction<T> = identity): Form<T> {
-	const [data, setData] = useState<DeepPartial<T>>(middlewareFn(initialValue))
+	const [data, setData] = useState<DeepPartial<T> | null>(middlewareFn(initialValue))
 
 	const handleUpdate = useCallback((delta: DeepPartial<T>, replace?: boolean) => {
+		if (delta === null && replace) {
+			setData(null)
+			return
+		}
+
 		setData((data) => {
 			if (replace) {
 				return middlewareFn(delta)
 			}
 
-			let nextData = mergeDeepLeft(delta, data) as DeepPartial<T>
+			let nextData = mergeDeepLeft(delta, data!) as DeepPartial<T>
 			nextData = middlewareFn(nextData)
 
 			return nextData

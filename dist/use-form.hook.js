@@ -13,11 +13,8 @@ function UpdateOnEvent(handleUpdate, event) {
     UpdateOnPathAndValue(handleUpdate, target.name, value);
 }
 function Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace) {
-    if (!eventOrDeltaOrPath) {
-        return;
-    }
     const event = eventOrDeltaOrPath;
-    if (event.nativeEvent instanceof Event) {
+    if ((event === null || event === void 0 ? void 0 : event.nativeEvent) instanceof Event) {
         UpdateOnEvent(handleUpdate, event);
         return;
     }
@@ -30,6 +27,10 @@ function Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace) {
 function useForm(initialValue = {}, middlewareFn = identity) {
     const [data, setData] = useState(middlewareFn(initialValue));
     const handleUpdate = useCallback((delta, replace) => {
+        if (delta === null && replace) {
+            setData(null);
+            return;
+        }
         setData((data) => {
             if (replace) {
                 return middlewareFn(delta);
