@@ -46,7 +46,7 @@ function UpdateOnPathAndValue<T>(handleUpdate: HandleUpdateFunction<T>, key: str
 }
 
 function UpdateOnEvent<T>(handleUpdate: HandleUpdateFunction<T>, event: ChangeEvent) {
-	const target = event.currentTarget as HTMLInputElement
+	const target = event.target as HTMLInputElement
 	const value = target.type === 'checkbox' ? target.checked : target.value
 
 	UpdateOnPathAndValue(handleUpdate, target.name, value)
@@ -106,10 +106,9 @@ export function useForm<T>(initialValue: DeepPartial<T> = {}, middlewareFn: Midd
 }
 
 export function useNestedForm<T, K extends Path<T>, N extends PathValue<T, K>>(
-	form: Form<T>,
+	[data, onChange]: Form<T>,
 	key: K,
 ): [N, HandleChangeFunction<N>] {
-	const [data, onChange] = form
 	const currentValue: DeepPartial<N> = useMemo(() => {
 		return path((key as string).split('.'), data) ?? {}
 	}, [data])

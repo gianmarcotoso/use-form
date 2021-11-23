@@ -80,7 +80,7 @@ describe('use-form.hook', () => {
 		act(() =>
 			setData({
 				nativeEvent: new Event('input'),
-				currentTarget: {
+				target: {
 					name: 'foo',
 					value: 'bar',
 				},
@@ -97,7 +97,7 @@ describe('use-form.hook', () => {
 		act(() =>
 			setData({
 				nativeEvent: new Event('input'),
-				currentTarget: {
+				target: {
 					name: 'flag',
 					checked: true,
 					type: 'checkbox',
@@ -337,5 +337,28 @@ describe('use-form.hook', () => {
 		act(() => result.current.tagsHandlers.onRemove(result.current.tags[0]))
 
 		expect(result.current.tags).toHaveLength(0)
+	})
+
+	it('should not mutate nested objects within the source object when replacing the state', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({})
+
+			return { data, setData }
+		}
+
+		const originalObject: Partial<TestFormState> = {
+			nest: {
+				some: 'billy',
+				tags: ['foo'],
+			},
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		act(() => result.current.setData(originalObject, true))
+		act(() => result.current.setData('nest.some', 'hello'))
+
+		expect(result.current.data.nest.some).toEqual('hello')
+		expect(originalObject.nest!.some).toEqual('billy')
 	})
 })
