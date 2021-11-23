@@ -8,7 +8,7 @@ function UpdateOnPathAndValue(handleUpdate, key, value, replace) {
     handleUpdate(nextData, replace);
 }
 function UpdateOnEvent(handleUpdate, event) {
-    const target = event.currentTarget;
+    const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     UpdateOnPathAndValue(handleUpdate, target.name, value);
 }
@@ -45,8 +45,7 @@ function useForm(initialValue = {}, middlewareFn = identity) {
     }, [data, handleUpdate]);
     return [data, handleChange];
 }
-function useNestedForm(form, key) {
-    const [data, onChange] = form;
+function useNestedForm([data, onChange], key) {
     const currentValue = useMemo(() => {
         var _a;
         return (_a = path(key.split('.'), data)) !== null && _a !== void 0 ? _a : {};
