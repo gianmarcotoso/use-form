@@ -8,6 +8,6 @@ export default {
 		entryFileNames: '[name].js',
 		format: 'es',
 	},
-	external: ['react', 'ramda'],
+	external: ['react', 'ramda', 'immer'],
 	plugins: [multiInput(), typescript()],
 }

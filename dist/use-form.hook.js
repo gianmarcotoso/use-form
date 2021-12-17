@@ -1,3 +1,4 @@
+import produce from 'immer';
 import { identity, mergeDeepLeft, path, lensPath, set } from 'ramda';
 import { useState, useCallback, useMemo } from 'react';
 
@@ -65,22 +66,37 @@ function useFormList(form, key, identifier) {
         return (_a = path(key.split('.'), data)) !== null && _a !== void 0 ? _a : [];
     }, [data, key]);
     function handleAddItem(item) {
-        const updatedArray = [...currentValue, item];
+        const updatedArray = produce(currentValue, (draft) => {
+            draft.push(item);
+        });
         onChange(key, updatedArray);
     }
     function handleRemoveItem(item) {
-        const updatedArray = currentValue.filter((i) => identifier(i) !== identifier(item));
+        const updatedArray = produce(currentValue, (draft) => {
+            const index = draft.findIndex((i) => identifier(i) === identifier(item));
+            if (index === -1) {
+                return;
+            }
+            draft.splice(index, 1);
+        });
         onChange(key, updatedArray);
     }
     function handleUpdateItem(item, delta, replace) {
-        const updatedArray = currentValue.map((i) => {
-            if (identifier(i) === identifier(item)) {
-                if (typeof i === 'object' && !replace) {
-                    return mergeDeepLeft(delta, i);
-                }
-                return delta;
+        const updatedArray = produce(currentValue, (draft) => {
+            const index = draft.findIndex((i) => identifier(i) === identifier(item));
+            if (index === -1) {
+                return;
             }
-            return i;
+            if (typeof item === 'string') {
+                draft[index] = delta;
+                return;
+            }
+            if (replace) {
+                draft[index] = delta;
+                return;
+            }
+            //@ts-ignore
+            draft[index] = mergeDeepLeft(delta, draft[index]);
         });
         onChange(key, updatedArray);
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1639752117592" clover="3.2.0">
-  <project timestamp="1639752117592" name="All files">
+<coverage generated="1639753232275" clover="3.2.0">
+  <project timestamp="1639753232275" name="All files">
     <metrics statements="70" coveredstatements="70" conditionals="40" coveredconditionals="40" methods="23" coveredmethods="23" elements="133" coveredelements="133" complexity="0" loc="70" ncloc="70" packages="1" files="2" classes="2"/>
     <file name="use-form.hook.ts" path="/home/gianmarcotoso/Developer/projects/use-form/src/use-form.hook.ts">
       <metrics statements="68" coveredstatements="68" conditionals="36" coveredconditionals="36" methods="22" coveredmethods="22"/>
@@ -68,10 +68,10 @@
       <line num="191" count="3" type="cond" truecount="2" falsecount="0"/>
       <line num="192" count="1" type="stmt"/>
       <line num="193" count="1" type="stmt"/>
-      <line num="196" count="2" type="stmt"/>
-      <line num="199" count="5" type="stmt"/>
-      <line num="203" count="5" type="stmt"/>
-      <line num="206" count="25" type="stmt"/>
+      <line num="197" count="2" type="stmt"/>
+      <line num="200" count="5" type="stmt"/>
+      <line num="204" count="5" type="stmt"/>
+      <line num="207" count="25" type="stmt"/>
     </file>
     <file name="value.function.ts" path="/home/gianmarcotoso/Developer/projects/use-form/src/value.function.ts">
       <metrics statements="2" coveredstatements="2" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
