@@ -4,7 +4,7 @@ import { ChangeEvent } from 'react'
 import { DeepPartial, useForm, useFormList, useNestedForm } from '../src/use-form.hook'
 
 type TestFormStateTodo = {
-	completed: string
+	completed?: string
 	name: string
 	id: number
 }
@@ -17,6 +17,7 @@ type TestFormState = {
 	nest: {
 		some: string
 		tags: string[]
+		todos?: TestFormStateTodo[]
 	}
 	todos: TestFormStateTodo[]
 }
@@ -300,11 +301,11 @@ describe('use-form.hook', () => {
 		expect(result.current.tags[0]).toEqual('foo')
 	})
 
-	it('allows to edit a value on a focused nested array', () => {
+	it('allows to edit a value on a focused nested array of strings', () => {
 		function useFormListHookTest() {
 			const [data, setData] = useForm<TestFormState>({
 				nest: {
-					tags: ['foo'],
+					tags: ['hello', 'world'],
 				},
 			})
 			const [tags, tagsHandlers] = useFormList([data, setData], 'nest.tags', (i) => i)
@@ -314,13 +315,74 @@ describe('use-form.hook', () => {
 
 		const { result } = renderHook(() => useFormListHookTest())
 
-		act(() => result.current.tagsHandlers.onEdit(result.current.tags[0], 'bar'))
+		act(() => result.current.tagsHandlers.onEdit(result.current.tags[0], 'zaz'))
 
-		expect(result.current.tags).toHaveLength(1)
-		expect(result.current.tags[0]).toEqual('bar')
+		expect(result.current.tags).toHaveLength(2)
+		expect(result.current.tags[0]).toBe('zaz')
 	})
 
-	it('allows to remove a value on a focused nested array', () => {
+	it('allows to edit a value on a focused nested array of objects', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				nest: {
+					todos: [{ id: Math.random(), name: 'foo' }],
+				},
+			})
+			const [todos, todosHandlers] = useFormList([data, setData], 'nest.todos', (i) => i.id)
+
+			return { data, todos, setData, todosHandlers }
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		act(() => result.current.todosHandlers.onEdit(result.current.todos[0], { name: 'bar' }))
+
+		expect(result.current.todos).toHaveLength(1)
+		expect(result.current.todos[0]).toHaveProperty('name', 'bar')
+	})
+
+	it('allows to replace a value on a focused nested array of objects', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				nest: {
+					todos: [{ id: Math.random(), name: 'foo' }],
+				},
+			})
+			const [todos, todosHandlers] = useFormList([data, setData], 'nest.todos', (i) => i.id)
+
+			return { data, todos, setData, todosHandlers }
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		act(() => result.current.todosHandlers.onEdit(result.current.todos[0], { id: 42 }, true))
+
+		expect(result.current.todos).toHaveLength(1)
+		expect(result.current.todos[0]).not.toHaveProperty('name')
+		expect(result.current.todos[0]).toHaveProperty('id', 42)
+	})
+
+	it('does nothing when attempting to edit a non existing item', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				nest: {
+					todos: [{ id: Math.random(), name: 'foo' }],
+				},
+			})
+			const [todos, todosHandlers] = useFormList([data, setData], 'nest.todos', (i) => i.id)
+
+			return { data, todos, setData, todosHandlers }
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		act(() => result.current.todosHandlers.onEdit({ id: 12, name: 'baz' }, { name: 'bar' }))
+
+		expect(result.current.todos).toHaveLength(1)
+		expect(result.current.todos[0]).toHaveProperty('name', 'foo')
+	})
+
+	it('allows to remove a value on a focused nested array of strings', () => {
 		function useFormListHookTest() {
 			const [data, setData] = useForm<TestFormState>({
 				nest: {
@@ -337,6 +399,44 @@ describe('use-form.hook', () => {
 		act(() => result.current.tagsHandlers.onRemove(result.current.tags[0]))
 
 		expect(result.current.tags).toHaveLength(0)
+	})
+
+	it('allows to remove a value on a focused nested array of objects', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				nest: {
+					todos: [{ id: Math.random(), name: 'foo' }],
+				},
+			})
+			const [todos, todosHandlers] = useFormList([data, setData], 'nest.todos', (i) => i.id)
+
+			return { data, todos, setData, todosHandlers }
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		act(() => result.current.todosHandlers.onRemove(result.current.todos[0]))
+
+		expect(result.current.todos).toHaveLength(0)
+	})
+
+	it('does nothing when attempting to remove a non-existing item', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				nest: {
+					todos: [{ id: Math.random(), name: 'foo' }],
+				},
+			})
+			const [todos, todosHandlers] = useFormList([data, setData], 'nest.todos', (i) => i.id)
+
+			return { data, todos, setData, todosHandlers }
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		act(() => result.current.todosHandlers.onRemove({ id: 0, name: 'baz' }))
+
+		expect(result.current.todos).toHaveLength(1)
 	})
 
 	it('should not mutate nested objects within the source object when replacing the state', () => {

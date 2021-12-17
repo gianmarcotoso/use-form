@@ -1,3 +1,4 @@
+import produce, { current } from 'immer'
 import { identity, lensPath, mergeDeepLeft, path, set } from 'ramda'
 import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 
@@ -154,28 +155,45 @@ export function useFormList<T, K extends Path<T>, Q extends PathValue<T, K>, I e
 	}, [data, key])
 
 	function handleAddItem(item: DeepPartial<I>) {
-		const updatedArray = [...currentValue, item]
+		const updatedArray = produce<I[]>(currentValue, (draft) => {
+			draft.push(item as I)
+		})
 
 		onChange(key, updatedArray)
 	}
 
 	function handleRemoveItem(item: I) {
-		const updatedArray = currentValue.filter((i) => identifier(i) !== identifier(item))
+		const updatedArray = produce<I[]>(currentValue, (draft) => {
+			const index = draft.findIndex((i) => identifier(i) === identifier(item))
+			if (index === -1) {
+				return
+			}
+
+			draft.splice(index, 1)
+		})
 
 		onChange(key, updatedArray)
 	}
 
 	function handleUpdateItem(item: I, delta: DeepPartial<I>, replace?: boolean) {
-		const updatedArray = currentValue.map((i) => {
-			if (identifier(i) === identifier(item)) {
-				if (typeof i === 'object' && !replace) {
-					return mergeDeepLeft(delta, i)
-				}
+		const updatedArray = produce<I[]>(currentValue, (draft) => {
+			const index = draft.findIndex((i) => identifier(i) === identifier(item))
 
-				return delta
+			if (index === -1) {
+				return
 			}
 
-			return i
+			if (typeof item === 'string') {
+				draft[index] = delta as I
+				return
+			}
+
+			if (replace) {
+				draft[index] = delta as I
+				return
+			}
+
+			draft[index] = mergeDeepLeft(delta, draft[index])
 		})
 
 		onChange(key, updatedArray)
