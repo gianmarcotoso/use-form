@@ -334,17 +334,13 @@ The `value` helper will return the value or an empty string if the value is eith
 
 ### Dot Notation
 
-You can use dot notation to traverse nested properties in the state, but attempting to use it to traverse arrays _will_ break things, so avoid doing it. If you're using TypeScript you should get an error when attempting to do so.
+You can use dot notation to traverse nested properties in the state. This includes items within an array, so all these
+uses are valid:
 
 ```tsx
-// This is ok
 setData('address.contacts.email', 'hello@example.com')
-
-// This is NOT ok
 setData('todos.0.completed', true)
 ```
-
-Internally, arrays are _always_ replaced, as I couldn't find a reliable and consistent way to update them (this might change in the future though).
 
 ### What about validation?
 

@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 import { ChangeEvent } from 'react'
 
-import { DeepPartial, useForm, useFormList, useNestedForm } from '../src/use-form.hook'
+import { DeepPartial, Path, useForm, useFormList, useNestedForm } from '../src/use-form.hook'
 
 type TestFormStateTodo = {
 	completed?: string
@@ -460,5 +460,53 @@ describe('use-form.hook', () => {
 
 		expect(result.current.data.nest.some).toEqual('hello')
 		expect(originalObject.nest!.some).toEqual('billy')
+	})
+
+	it('should allow to focus on an item of an array of objects', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				nest: {
+					todos: [{ id: Math.random(), name: 'foo' }],
+				},
+			})
+
+			//@ts-ignore
+			const [todo, todoHandlers] = useNestedForm([data, setData], 'nest.todos.0')
+
+			return { data, todo, setData, todoHandlers }
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		expect(result.current.todo).toHaveProperty('name', 'foo')
+	})
+
+	it('should allow to edit a focused item of an array of objects', () => {
+		function useFormListHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				nest: {
+					todos: [{ id: Math.random(), name: 'foo' }],
+				},
+			})
+
+			//@ts-ignore
+			const [todo, onChangeTodo] = useNestedForm([data, setData], 'nest.todos.0')
+
+			return { data, todo, setData, onChangeTodo }
+		}
+
+		const { result } = renderHook(() => useFormListHookTest())
+
+		act(() => {
+			//@ts-ignore
+			result.current.onChangeTodo('name', 'bar')
+
+			//@ts-ignore
+			result.current.setData('nest.todos.0.completed', true)
+		})
+
+		expect(result.current.todo).toHaveProperty('name', 'bar')
+		expect(result.current.data.nest.todos![0]).toHaveProperty('name', 'bar')
+		expect(result.current.data.nest.todos![0]).toHaveProperty('completed', true)
 	})
 })
