@@ -1,6 +1,6 @@
-import produce, { current, Draft } from 'immer'
+import produce, { Draft } from 'immer'
 import { identity, lensPath, mergeDeepLeft, path, set } from 'ramda'
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export type DeepPartial<T> = {
 	[P in keyof T]?: DeepPartial<T[P]>
@@ -41,7 +41,7 @@ function UpdateOnPathAndValue<T>(handleUpdate: HandleUpdateFunction<T>, key: str
 	const splittedKey = key.split('.')
 	const pathLens = lensPath(splittedKey)
 
-	let nextData = set(pathLens, value, {})
+	const nextData = set(pathLens, value, {})
 
 	handleUpdate(nextData, replace)
 }
@@ -75,6 +75,16 @@ function Update<T>(
 	handleUpdate(eventOrDeltaOrPath, replaceOrValue)
 }
 
+function useStableCallback<T>(callback: (...args: any[]) => T) {
+	const callbackRef = useRef(callback)
+
+	useEffect(() => {
+		callbackRef.current = callback
+	}, [callback])
+
+	return useCallback(callbackRef.current, [])
+}
+
 export function useForm<T>(initialValue: DeepPartial<T> = {}, middlewareFn: MiddlewareFunction<T> = identity): Form<T> {
 	const [data, setData] = useState<DeepPartial<T> | null>(middlewareFn(initialValue))
 
@@ -96,12 +106,13 @@ export function useForm<T>(initialValue: DeepPartial<T> = {}, middlewareFn: Midd
 		})
 	}, [])
 
-	const handleChange = useCallback(
-		function handleChange(eventOrDeltaOrPath: any, replaceOrValue?: any, replace?: boolean) {
-			Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace)
-		},
-		[data, handleUpdate],
-	)
+	const handleChange = useStableCallback(function handleChange(
+		eventOrDeltaOrPath: any,
+		replaceOrValue?: any,
+		replace?: boolean,
+	) {
+		Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace)
+	})
 
 	return [data as T, handleChange]
 }
@@ -115,18 +126,19 @@ export function useNestedForm<T, K extends Path<T>, N extends PathValue<T, K>>(
 	}, [data])
 
 	const handleUpdate = useCallback(
-		(delta: DeepPartial<N>, replace?: boolean) => {
-			onChange(key, delta, replace)
+		(delta: DeepPartial<N>) => {
+			onChange(key, delta, false)
 		},
 		[onChange],
 	)
 
-	const handleChange = useCallback(
-		function handleChange(eventOrDeltaOrPath: any, replaceOrValue?: any, replace?: boolean) {
-			Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace)
-		},
-		[currentValue, handleUpdate],
-	)
+	const handleChange = useStableCallback(function handleChange(
+		eventOrDeltaOrPath: any,
+		replaceOrValue?: any,
+		replace?: boolean,
+	) {
+		Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace)
+	})
 
 	return [currentValue as N, handleChange]
 }

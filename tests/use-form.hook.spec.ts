@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 import { ChangeEvent } from 'react'
 
-import { DeepPartial, Path, useForm, useFormList, useNestedForm } from '../src/use-form.hook'
+import { DeepPartial, useForm, useFormList, useNestedForm } from '../src/use-form.hook'
 
 type TestFormStateTodo = {
 	completed?: string
@@ -174,6 +174,28 @@ describe('use-form.hook', () => {
 
 		expect(result.current.nestedData).toEqual({ some: 'foo' })
 		expect(result.current.data).toEqual({ nest: { some: 'foo' } })
+		expect(result.current.data.nest).toBe(result.current.nestedData)
+	})
+
+	it('allows to reset the state of a nested object using the useNestedForm hook', () => {
+		function useNestedFormHookTest() {
+			const [data, setData] = useForm<TestFormState>({
+				foo: 'foo',
+				nest: {
+					some: 'bar',
+				},
+			})
+			const [nestedData, setNestedData] = useNestedForm([data, setData], 'nest')
+
+			return { data, nestedData, setData, setNestedData }
+		}
+
+		const { result } = renderHook(() => useNestedFormHookTest())
+
+		act(() => result.current.setNestedData({ some: 'baz' }, true))
+
+		expect(result.current.nestedData).toEqual({ some: 'baz' })
+		expect(result.current.data).toEqual({ foo: 'foo', nest: { some: 'baz' } })
 		expect(result.current.data.nest).toBe(result.current.nestedData)
 	})
 
