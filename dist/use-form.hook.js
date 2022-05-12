@@ -1,11 +1,11 @@
 import produce from 'immer';
 import { identity, mergeDeepLeft, path, lensPath, set } from 'ramda';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 function UpdateOnPathAndValue(handleUpdate, key, value, replace) {
     const splittedKey = key.split('.');
     const pathLens = lensPath(splittedKey);
-    let nextData = set(pathLens, value, {});
+    const nextData = set(pathLens, value, {});
     handleUpdate(nextData, replace);
 }
 function UpdateOnEvent(handleUpdate, event) {
@@ -25,6 +25,13 @@ function Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace) {
     }
     handleUpdate(eventOrDeltaOrPath, replaceOrValue);
 }
+function useStableCallback(callback) {
+    const callbackRef = useRef(callback);
+    useEffect(() => {
+        callbackRef.current = callback;
+    }, [callback]);
+    return useCallback(callbackRef.current, []);
+}
 function useForm(initialValue = {}, middlewareFn = identity) {
     const [data, setData] = useState(middlewareFn(initialValue));
     const handleUpdate = useCallback((delta, replace) => {
@@ -41,9 +48,9 @@ function useForm(initialValue = {}, middlewareFn = identity) {
             return nextData;
         });
     }, []);
-    const handleChange = useCallback(function handleChange(eventOrDeltaOrPath, replaceOrValue, replace) {
+    const handleChange = useStableCallback(function handleChange(eventOrDeltaOrPath, replaceOrValue, replace) {
         Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace);
-    }, [data, handleUpdate]);
+    });
     return [data, handleChange];
 }
 function useNestedForm([data, onChange], key) {
@@ -51,12 +58,12 @@ function useNestedForm([data, onChange], key) {
         var _a;
         return (_a = path(key.split('.'), data)) !== null && _a !== void 0 ? _a : {};
     }, [data]);
-    const handleUpdate = useCallback((delta, replace) => {
-        onChange(key, delta, replace);
+    const handleUpdate = useCallback((delta) => {
+        onChange(key, delta, false);
     }, [onChange]);
-    const handleChange = useCallback(function handleChange(eventOrDeltaOrPath, replaceOrValue, replace) {
+    const handleChange = useStableCallback(function handleChange(eventOrDeltaOrPath, replaceOrValue, replace) {
         Update(handleUpdate, eventOrDeltaOrPath, replaceOrValue, replace);
-    }, [currentValue, handleUpdate]);
+    });
     return [currentValue, handleChange];
 }
 function useFormList(form, key, identifier) {
