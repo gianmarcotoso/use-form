@@ -1,5 +1,5 @@
 import produce from 'immer';
-import { identity, mergeDeepLeft, path, lensPath, set } from 'ramda';
+import { mergeDeepLeft, identity, path, lensPath, set } from 'ramda';
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 function UpdateOnPathAndValue(handleUpdate, key, value, replace) {
