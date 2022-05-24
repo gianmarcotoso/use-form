@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react'
 import { ChangeEvent } from 'react'
 
 import { DeepPartial, useForm, useFormList, useNestedForm } from '../src/use-form.hook'
